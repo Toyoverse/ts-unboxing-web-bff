@@ -8,23 +8,28 @@ import { AppService } from '../services/app.service';
   name: 'Authorization',
   description: 'Token header returned on login',
 })
-@Controller('/toyo')
+@Controller('/player/box')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @ApiTags('Boxes')
   @ApiParam({ name: 'id', description: 'Box Id to get details' })
   @ApiResponse({ status: 200, type: BoxModel })
-  @Get('closedbox/:id')
+  @Get('/closedbox/:id')
   async getBoxDetail(
     @Req() request: Request,
     @Res() response: Response,
     @Param('id') id: string,
   ){
     try {
+      const box = await this.appService.findBoxDetailById(request.walletId, id);
 
-    }catch(e){
-      return response.status(500).json({ 
+      response.status(200).json({
+        Box: box,
+      });
+
+    }catch {
+      return response.status(500).json({        
         erros: ['Error could not return box'],
       });
     }

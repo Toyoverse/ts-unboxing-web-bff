@@ -1,6 +1,7 @@
 export interface Box{
-    TransationHash: string;
-    tokenId:string;
+    toyoHash: string;
+    tokenId: string;
     typeId: string;
-    idClosedBox: string;
+    tokenIdClosedBox: string;
+    tokenIdOpenBox: string;
 }
