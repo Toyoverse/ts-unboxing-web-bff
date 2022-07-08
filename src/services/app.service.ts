@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import BoxModel from 'src/models/Box.model';
 import * as Parse from 'parse/node';
 import { OnchainService } from './onchain.service';
-import { TypeId } from 'src/enums/SmartContracts';
 import { BoxService } from './box.service';
 import { response } from 'express';
 
@@ -23,7 +22,7 @@ export class AppService {
 
     const boxOnChain = await this.onchainService.getTokenOwnerEntityByTokenId(walletAddress, box.tokenId);
     if (boxOnChain) return box;
-    
+
     return response.status(500).json({
       error: ['The box does not belong to the player'],
     });

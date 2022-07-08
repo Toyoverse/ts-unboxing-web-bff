@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from '@nestjs/config';
 import BoxModel from '../models/Box.model';
 import * as Parse from 'parse/node';
-import { TypeId } from 'src/enums/SmartContracts';
 import { response } from "express";
 
 @Injectable()

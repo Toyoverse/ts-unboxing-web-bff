@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TypeId } from '../enums/SmartContracts';
 import { request, gql } from 'graphql-request';
 
 @Injectable()
