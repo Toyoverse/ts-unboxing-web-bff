@@ -22,7 +22,7 @@ export class AppController {
     @Param('id') id: string,
   ){
     try {
-      const box = await this.appService.findBoxDetailById(request.walletId, id);
+      const box = await this.appService.findBoxDetailById (response.locals.walletId , id);
 
       response.status(200).json({
         Box: box,
