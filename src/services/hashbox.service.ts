@@ -10,7 +10,8 @@ export class HashBoxService {
   constructor(
     private configService: ConfigService,
     private boxService: BoxService,
-    private secretKey: string,
+    private secretKey: string | undefined,
+
   ) {
     this.ParseServerConfiguration();
     this.secretKey = this.configService.get<string>('PRIVATE_KEY');
