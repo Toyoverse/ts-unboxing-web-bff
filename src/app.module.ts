@@ -1,9 +1,12 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './controllers/app.controller';
-import { AppService } from './services/app.service';
-import { OnchainService } from './services/onchain.service';
-import { BoxService } from './services/box.service';
+import {
+  AppService,
+  OnchainService,
+  BoxService,
+  HashBoxService,
+} from './services';
 import { AuthMiddleware } from './middlewares/auth.middleware';
 
 @Module({
@@ -13,11 +16,7 @@ import { AuthMiddleware } from './middlewares/auth.middleware';
     }),
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    OnchainService,
-    BoxService,
-  ],
+  providers: [AppService, OnchainService, BoxService, HashBoxService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

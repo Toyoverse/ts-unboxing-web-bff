@@ -11,6 +11,7 @@ export class HashBoxService {
     private configService: ConfigService,
     private boxService: BoxService,
     private secretKey: string | undefined,
+
   ) {
     this.ParseServerConfiguration();
     this.secretKey = this.configService.get<string>('PRIVATE_KEY');
