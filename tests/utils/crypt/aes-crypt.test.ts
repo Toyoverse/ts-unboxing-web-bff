@@ -1,4 +1,4 @@
-import { AESCrypt } from 'src/utils/crypt/aes-crypt';
+import { AESCrypt } from '../../../src/utils/crypt/aes-crypt';
 
 describe('Unit tests for AES Crypt', () => {
   const aesCrypt = new AESCrypt();
