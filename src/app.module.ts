@@ -20,6 +20,6 @@ import { AuthMiddleware } from './middlewares/auth.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes(AppController);
+    // consumer.apply(AuthMiddleware).forRoutes(AppController);
   }
 }

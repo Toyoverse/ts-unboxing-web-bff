@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+  <file path="/Users/lucas/go/src/github.com/lucaslima-7/ts-unboxing-web-bff/src/services/tests/hashbox.service.test.ts">
+    <testCase name="HashboxService generateSignature should return the signature" duration="78"/>
+  </file>
+</testExecutions>
