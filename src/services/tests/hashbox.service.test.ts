@@ -3,17 +3,27 @@ import { Test } from '@nestjs/testing';
 import { Box } from '../../models/interfaces/IBox';
 import { BoxService } from '../../services/box.service';
 import { HashBoxService } from '../../services/hashbox.service';
+import di from '../../di';
 
 describe('HashboxService', () => {
   const privateKey =
     '0x8b29f2d15bbb36597c8218291b5c6422332f8d56b108a70b90a40a85664243c6';
   let hashboxService: HashBoxService;
 
+  const crypt = {
+    encrypt: jest.fn(),
+    decrypt: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
         HashBoxService,
         BoxService,
+        {
+          provide: di.AESCrypt,
+          useValue: crypt,
+        },
         {
           provide: ConfigService,
           useValue: {
