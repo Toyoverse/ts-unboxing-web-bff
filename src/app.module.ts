@@ -1,12 +1,14 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './controllers/app.controller';
-import { AppService } from './services/app.service';
-import { OnchainService } from './services/onchain.service';
-import { BoxService } from './services/box.service';
+import {
+  AppService,
+  OnchainService,
+  BoxService,
+  HashBoxService,
+} from './services';
 import { AuthMiddleware } from './middlewares/auth.middleware';
 import { AESCrypt } from './utils/crypt/aes-crypt';
-import { HashBoxService } from './services/hashbox.service';
 import di from './di';
 
 @Module({
