@@ -8,6 +8,8 @@ import {
   HashBoxService,
 } from './services';
 import { AuthMiddleware } from './middlewares/auth.middleware';
+import { AESCrypt } from './utils/crypt/aes-crypt';
+import di from './di';
 
 @Module({
   imports: [
@@ -16,7 +18,13 @@ import { AuthMiddleware } from './middlewares/auth.middleware';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, OnchainService, BoxService, HashBoxService],
+  providers: [
+    AppService,
+    OnchainService,
+    BoxService,
+    HashBoxService,
+    { provide: di.AESCrypt, useClass: AESCrypt },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
