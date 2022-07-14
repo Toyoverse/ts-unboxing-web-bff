@@ -6,6 +6,7 @@ import { Box } from '../models/interfaces/IBox';
 import { Eth } from 'web3-eth';
 import { soliditySha3 } from 'web3-utils';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Web3Eth = require('web3-eth');
 
 @Injectable()
