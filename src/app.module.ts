@@ -28,6 +28,6 @@ import di from './di';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    // consumer.apply(AuthMiddleware).forRoutes(AppController);
+    consumer.apply(AuthMiddleware).forRoutes(AppController);
   }
 }
