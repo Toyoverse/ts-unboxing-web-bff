@@ -49,7 +49,15 @@ describe('HashboxService', () => {
         tokenIdOpenBox: '1677',
         toyoHash: 'abc',
         typeId: '10',
+        toyo: {
+          id: 'x5AOWbpfA8',
+          name: 'Ming Yue',
+        },
       };
+
+      const expectHash = 'fdalfdakfdasfadsv2';
+
+      crypt.encrypt.mockReturnValue(expectHash);
 
       const signature = await hashboxService.generateSignature(box);
 
