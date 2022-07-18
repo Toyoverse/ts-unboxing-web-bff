@@ -21,6 +21,7 @@ module.exports = {
   testMatch: [
     '<rootDir>/tests/**/**/*.test.ts',
     '<rootDir>/tests/**/**/**/*.test.ts',
+    '<rootDir>/src/**/**/**/*.test.ts',
   ],
   testEnvironment: 'node',
 };
