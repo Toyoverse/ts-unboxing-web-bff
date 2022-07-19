@@ -5,14 +5,20 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const urls: string[] = process.env.CORS_ENABLED_URL.split('|');
+
   const options: cors.CorsOptions = {
     methods: 'GET,POST',
-    origin: '*'
+    origin: '*',
   };
 
-  app.use(cors(options));
+  app.enableCors({
+    methods: ['GET', 'POST'],
+    origin: urls,
+  });
   app.use(helmet());
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
