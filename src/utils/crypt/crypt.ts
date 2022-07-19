@@ -1,4 +1,4 @@
 export interface Crypt {
-  encrypt(data: string, key: string): string;
-  decrypt(cipherText: string, key: string): string;
+  encrypt(data: string, hexKey: string): string;
+  decrypt(cipherText: string, hexKey: string): string;
 }
