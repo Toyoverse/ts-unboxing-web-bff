@@ -5,6 +5,13 @@ import { BoxService } from './box.service';
 import ToyoModel from '../models/Toyo.model';
 import { Crypt } from '../utils/crypt/crypt';
 import di from '../di';
+import { Box } from '../models/interfaces/IBox';
+import { Eth } from 'web3-eth';
+import { soliditySha3 } from 'web3-utils';
+import { response } from 'express';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const Web3Eth = require('web3-eth');
 
 @Injectable()
 export class HashBoxService {
@@ -30,7 +37,23 @@ export class HashBoxService {
     return new ToyoModel({ id, name });
   }
 
-  async generateSignature(player): Promise<any> {}
+  async generateSignature(box: Box): Promise<string> {
+    try {
+      const { toyo } = box;
+
+      const eth: Eth = new Web3Eth();
+      const hash = await this.generateHash(toyo);
+
+      const message = soliditySha3(hash);
+      const { signature } = eth.accounts.sign(message, this.secretKey);
+
+      return signature;
+    } catch (e) {
+      response.status(500).json({
+        error: [e.message],
+      });
+    }
+  }
 
   /**
    * Function to configure ParseSDK
