@@ -15,6 +15,8 @@ export default class BoxModel implements Box {
   tokenIdOpenBox: string;
   @ApiProperty()
   toyo: ToyoModel;
+  @ApiProperty()
+  isOpen: boolean;
 
   constructor() {}
 }
