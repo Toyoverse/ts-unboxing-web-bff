@@ -2,18 +2,25 @@ import { Injectable } from '@nestjs/common';
 import { Crypt } from './crypt';
 
 import * as CryptoJS from 'crypto-js';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AESCrypt implements Crypt {
-  private iv = CryptoJS.enc.Hex.parse(
-    '9a6eac0b2b23d3605ca1f021d20b84da469829a133081dc4a4b3aba63e6a9660',
-  );
+  private iv: CryptoJS.lib.WordArray;
 
-  private cfg = {
-    iv: this.iv,
-    mode: CryptoJS.mode.CBC,
-    format: CryptoJS.format.Hex,
-  };
+  private cfg: any;
+
+  constructor(private configService: ConfigService) {
+    this.iv = CryptoJS.enc.Hex.parse(
+      this.configService.get<string>('CRYPTO_IV'),
+    );
+
+    this.cfg = {
+      iv: this.iv,
+      mode: CryptoJS.mode.CBC,
+      format: CryptoJS.format.Hex,
+    };
+  }
 
   encrypt(text: string, hexKey: string): string {
     hexKey = hexKey.replace('0x', '');
