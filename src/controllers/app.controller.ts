@@ -40,7 +40,7 @@ export class AppController {
   @ApiTags('Boxes')
   @ApiParam({ name: 'id', description: 'Box Id' })
   @ApiResponse({ status: 200, type: BoxModel })
-  @Post('/toyo/openbox/:id')
+  @Post('/:id')
   async openBox(
     @Req() req: Request,
     @Res() res: Response,

@@ -1,7 +1,7 @@
 import { Toyo } from './IToyo';
 
 export interface Box {
-  toyoHash: string;
+  toyoHash?: string;
   tokenId: string;
   typeId: string;
   tokenIdClosedBox: string;

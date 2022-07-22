@@ -37,8 +37,8 @@ export class BoxService {
   }
 
   async openBox(id: string): Promise<BoxModel> {
-    const Boxes = Parse.Object.extend('Boxes', BoxModel);
-    const query: Parse.Query = new Parse.Query(Boxes);
+    const query = this.createBoxQuery();
+    query.include('toyo');
 
     try {
       const result = await query.get(id);
@@ -52,7 +52,6 @@ export class BoxService {
       result.set('isOpen', true);
       const saveRes = await result.save();
       const box: BoxModel = this.BoxMapper(saveRes);
-
       return box;
     } catch (e) {
       response.status(500).json({
