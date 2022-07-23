@@ -7,4 +7,5 @@ export interface Box {
   tokenIdClosedBox: string;
   tokenIdOpenBox: string;
   toyo: Toyo;
+  objectId?: string;
 }

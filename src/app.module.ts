@@ -6,6 +6,7 @@ import {
   OnchainService,
   BoxService,
   HashBoxService,
+  ToyoService,
 } from './services';
 import { AuthMiddleware } from './middlewares/auth.middleware';
 import { AESCrypt } from './utils/crypt/aes-crypt';
@@ -23,6 +24,7 @@ import di from './di';
     OnchainService,
     BoxService,
     HashBoxService,
+    ToyoService,
     { provide: di.AESCrypt, useClass: AESCrypt },
   ],
 })
