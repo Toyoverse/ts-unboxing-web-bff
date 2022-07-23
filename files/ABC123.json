@@ -1,0 +1,84 @@
+{
+  "name": "Slicky",
+  "description": "\"Slicky was built with the most common  materials. Almost discardable, he was introduced as a substitute for The Collectors in the test of lethal traps in the Arena of Trials.\n\nNow, with the Collectors next to them, they help run part of The Dome black market; many low tier parts can be found in their street markets as well as many other goods you can only find in Jakana.\"",
+  "image": "https://toyoverse.com/nft_thumbs/toyos/slicky.png",
+  "animation_url": "https://toyoverse.com/nft_thumbs/toyos/slicky.mp4",
+  "attributes": [
+    {
+      "trait_type": "Type",
+      "value": 9
+    },
+    {
+      "trait_type": "Toyo",
+      "value": "Ribbit"
+    },
+    {
+      "trait_type": "Region",
+      "value": "Jakana"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "COMMON"
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Vitality",
+      "value": 32
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Strength",
+      "value": 39
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Resistance",
+      "value": 59
+    },
+    {
+      "display_type": "number",
+      "trait_type": "CyberForce",
+      "value": 32
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Resilience",
+      "value": 78
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Precision",
+      "value": 25
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Technique",
+      "value": 65
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Analysis",
+      "value": 109
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Speed",
+      "value": 110
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Agility",
+      "value": 78
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Stamina",
+      "value": 115
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Luck",
+      "value": 109
+    }
+  ]
+}
