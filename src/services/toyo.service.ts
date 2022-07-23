@@ -14,11 +14,8 @@ export class ToyoService{
         ) {
         this.ParseServerConfiguration();
     }
-    async generateMetadata(idBox: string, toyoTokenId: string){
+    async generateMetadata(box: BoxModel, toyoTokenId: string){
         try {
-       
-        const boxId: string = Buffer.from(idBox, 'base64').toString('ascii');
-        const box:BoxModel = await this.boxService.findBoxById(boxId);
         const toyo = await this.findToyoByTokenId(toyoTokenId);
 
         const ToyoPersona = Parse.Object.extend("ToyoPersona");
