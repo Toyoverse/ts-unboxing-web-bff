@@ -1,15 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { Crypt } from './crypt';
 
-import { AES, enc } from 'crypto-js';
+import * as CryptoJS from 'crypto-js';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AESCrypt implements Crypt {
-  encrypt(data: string, key: string): string {
-    return AES.encrypt(data, key).toString();
+  private iv: CryptoJS.lib.WordArray;
+
+  private cfg: any;
+
+  constructor(private configService: ConfigService) {
+    this.iv = CryptoJS.enc.Hex.parse(
+      this.configService.get<string>('CRYPTO_IV'),
+    );
+
+    this.cfg = {
+      iv: this.iv,
+      mode: CryptoJS.mode.CBC,
+      format: CryptoJS.format.Hex,
+    };
   }
 
-  decrypt(cypherText: string, key: string): string {
-    return AES.decrypt(cypherText, key).toString(enc.Utf8);
+  encrypt(text: string, hexKey: string): string {
+    hexKey = hexKey.replace('0x', '');
+
+    const _key = CryptoJS.enc.Hex.parse(hexKey);
+    return CryptoJS.AES.encrypt(text, _key, this.cfg).toString();
+  }
+
+  decrypt(ciphertext: string, hexKey: string): string {
+    hexKey = hexKey.replace('0x', '');
+
+    const _key = CryptoJS.enc.Hex.parse(hexKey);
+    return CryptoJS.AES.decrypt(ciphertext, _key, this.cfg).toString(
+      CryptoJS.enc.Utf8,
+    );
   }
 }

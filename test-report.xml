@@ -1,13 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/lucas/go/src/github.com/lucaslima-7/ts-unboxing-web-bff/src/services/tests/hashbox.service.test.ts">
-    <testCase name="HashboxService generateSignature should return the signature" duration="85"/>
-  </file>
-  <file path="/Users/lucas/go/src/github.com/lucaslima-7/ts-unboxing-web-bff/tests/services/hashbox.service.test.ts">
-    <testCase name="Unit tests for HashBox service generate hash" duration="5"/>
-    <testCase name="Unit tests for HashBox service decrypt hash" duration="5"/>
-  </file>
-  <file path="/Users/lucas/go/src/github.com/lucaslima-7/ts-unboxing-web-bff/tests/utils/crypt/aes-crypt.test.ts">
-    <testCase name="Unit tests for AES Crypt Test encrypt and decrypt" duration="3"/>
-  </file>
 </testExecutions>
