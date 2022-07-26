@@ -11,8 +11,7 @@ export class BoxService {
   }
 
   async findBoxById(id: string): Promise<BoxModel> {
-    const Boxes = Parse.Object.extend('Boxes', BoxModel);
-    const boxesQuery = new Parse.Query(Boxes);
+    const boxesQuery = this.createBoxQuery();
     boxesQuery.equalTo('objectId', id);
     try {
       const result = await boxesQuery.find();
@@ -37,14 +36,46 @@ export class BoxService {
     }
   }
 
+  async openBox(id: string): Promise<BoxModel> {
+    const query = this.createBoxQuery();
+    query.include('toyo');
+
+    try {
+      const result = await query.get(id);
+
+      if (result.get('isOpen')) {
+        response.status(404).json({
+          erros: ['Box is already open'],
+        });
+      }
+
+      result.set('isOpen', true);
+      const saveRes = await result.save();
+      const box: BoxModel = this.BoxMapper(saveRes);
+      return box;
+    } catch (e) {
+      response.status(500).json({
+        error: [e.message],
+      });
+    }
+  }
+
   private BoxMapper(result: Parse.Object<Parse.Attributes>): BoxModel {
     const box: BoxModel = new BoxModel();
 
     box.toyoHash = result.get('toyoHash');
     box.typeId = result.get('typeId');
     box.tokenId = result.get('tokenId');
+    box.toyo = result.get('toyo');
 
     return box;
+  }
+
+  private createBoxQuery(): Parse.Query {
+    const Boxes = Parse.Object.extend('Boxes', BoxModel);
+    const query: Parse.Query = new Parse.Query(Boxes);
+
+    return query;
   }
 
   /**

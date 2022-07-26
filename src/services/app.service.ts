@@ -17,34 +17,48 @@ export class AppService {
   }
   async findBoxDetailById(walletAddress: string, id: string) {
     try {
-    const toyoId: string = Buffer.from(id, 'base64').toString('ascii');
-    const box: BoxModel = await this.boxService.findBoxById(toyoId);
+      const toyoId: string = Buffer.from(id, 'base64').toString('ascii');
+      const box: BoxModel = await this.boxService.findBoxById(toyoId);
 
-    const boxOnChain = await this.onchainService.getTokenOwnerEntityByTokenId(walletAddress, box.tokenId);
-    if (boxOnChain) return box;
+      const boxOnChain = await this.onchainService.getTokenOwnerEntityByTokenId(
+        walletAddress,
+        box.tokenId,
+      );
+      if (boxOnChain) return box;
 
-    return response.status(500).json({
-      error: ['The box does not belong to the player'],
-    });
-
-
-    } catch(e){
+      return response.status(500).json({
+        error: ['The box does not belong to the player'],
+      });
+    } catch (e) {
       response.status(500).json({
         error: [e.message],
       });
     }
   }
-   /**
+
+  async openBox(id: string) {
+    try {
+      const boxId: string = Buffer.from(id, 'base64').toString('ascii');
+      const box: BoxModel = await this.boxService.openBox(boxId);
+
+      return box;
+    } catch (e) {
+      response.status(500).json({
+        error: [e.message],
+      });
+    }
+  }
+  /**
    * Function to configure ParseSDK
    */
-    private ParseServerConfiguration(): void {
-      Parse.initialize(
-        this.configService.get<string>('BACK4APP_APPLICATION_ID'),
-        this.configService.get<string>('BACK4APP_JAVASCRIPT_KEY'),
-        this.configService.get<string>('BACK4APP_MASTER_KEY'),
-      );
-      (Parse as any).serverURL = this.configService.get<string>(
-        'BACK4APP_SERVER_URL',
-      );
-    }
+  private ParseServerConfiguration(): void {
+    Parse.initialize(
+      this.configService.get<string>('BACK4APP_APPLICATION_ID'),
+      this.configService.get<string>('BACK4APP_JAVASCRIPT_KEY'),
+      this.configService.get<string>('BACK4APP_MASTER_KEY'),
+    );
+    (Parse as any).serverURL = this.configService.get<string>(
+      'BACK4APP_SERVER_URL',
+    );
+  }
 }

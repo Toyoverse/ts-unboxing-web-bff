@@ -4,7 +4,7 @@ import ToyoModel from './Toyo.model';
 
 export default class BoxModel implements Box {
   @ApiProperty()
-  toyoHash: string;
+  toyoHash?: string;
   @ApiProperty()
   tokenId: string;
   @ApiProperty()
@@ -15,6 +15,8 @@ export default class BoxModel implements Box {
   tokenIdOpenBox: string;
   @ApiProperty()
   toyo: ToyoModel;
+  @ApiProperty()
+  isOpen: boolean;
 
   constructor() {}
 }

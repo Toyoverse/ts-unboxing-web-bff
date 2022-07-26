@@ -53,6 +53,7 @@ describe('HashboxService', () => {
           id: 'x5AOWbpfA8',
           name: 'Ming Yue',
         },
+        isOpen: false,
       };
 
       const expectHash = 'fdalfdakfdasfadsv2';
