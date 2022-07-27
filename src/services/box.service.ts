@@ -36,9 +36,9 @@ export class BoxService {
     }
   }
 
-  async openBox(id: string): Promise<BoxModel> {
+  async openBox(id: string): Promise<any> {
     const query = this.createBoxQuery();
-    query.include('toyo');
+    query.include(['toyo', 'toyo.toyoPersonaOrigin']);
 
     try {
       const result = await query.get(id);
@@ -52,7 +52,15 @@ export class BoxService {
       result.set('isOpen', true);
       const saveRes = await result.save();
       const box: BoxModel = this.BoxMapper(saveRes);
-      return box;
+
+      const parts = await saveRes.relation('parts').query().find();
+
+      const data = {
+        ...box,
+        toyoParts: parts,
+      };
+
+      return data;
     } catch (e) {
       response.status(500).json({
         error: [e.message],
