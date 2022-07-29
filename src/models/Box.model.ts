@@ -1,6 +1,7 @@
 import { Box } from './interfaces/IBox';
 import { ApiProperty } from '@nestjs/swagger';
 import ToyoModel from './Toyo.model';
+import * as Parse from 'parse/node';
 
 export default class BoxModel implements Box {
   @ApiProperty()
@@ -17,6 +18,8 @@ export default class BoxModel implements Box {
   toyo: ToyoModel;
   @ApiProperty()
   isOpen: boolean;
+  @ApiProperty()
+  player?: Parse.Object<Parse.Attributes>;
 
   constructor() {}
 }
