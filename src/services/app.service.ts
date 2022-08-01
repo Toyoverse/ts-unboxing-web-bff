@@ -18,15 +18,19 @@ export class AppService {
   async findBoxDetailById(walletAddress: string, id: string) {
     try {
       const toyoId: string = Buffer.from(id, 'base64').toString('ascii');
-      const box: BoxModel = await this.boxService.findBoxById(toyoId);
+      const box: BoxModel = await this.boxService.findBoxById(toyoId, walletAddress);
 
       const boxOnChain = await this.onchainService.getTokenOwnerEntityByTokenId(
         walletAddress,
         box.tokenId,
       );
-      if (boxOnChain) {
+
+      if (boxOnChain){
+        const player = box.player;
+        player.set('hasPendingUnboxing', true);
+        await player.save();
         return box;
-      }
+      } 
 
       return response.status(500).json({
         error: ['The box does not belong to the player'],

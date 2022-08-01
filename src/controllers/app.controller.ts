@@ -20,7 +20,7 @@ export class AppController {
     @Req() request: Request,
     @Res() response: Response,
     @Param('id') id: string,
-  ) {
+  ) { 
     try {
       const box = await this.appService.findBoxDetailById(
         response.locals.walletId,
@@ -28,7 +28,11 @@ export class AppController {
       );
 
       response.status(200).json({
-        Box: box,
+        Box: {
+          toyoHash: box.toyoHash,
+          typeId: box.typeId,
+          tokenId: box.tokenId
+        }
       });
     } catch {
       return response.status(500).json({

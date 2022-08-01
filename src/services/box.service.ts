@@ -10,10 +10,13 @@ export class BoxService {
     this.ParseServerConfiguration();
   }
 
-  async findBoxById(id: string): Promise<BoxModel> {
+  async findBoxById(id: string, walletAddress?:string): Promise<BoxModel> {
+    const playerQuery = this.createPlayerQuery();
+    playerQuery.equalTo('walletAddress', walletAddress);
     const boxesQuery = this.createBoxQuery();
     boxesQuery.equalTo('objectId', id);
     try {
+      const player = await playerQuery.find();
       const result = await boxesQuery.find();
 
       if (result.length < 1 || result[0].id !== id) {
@@ -21,8 +24,7 @@ export class BoxService {
           erros: ['Box not found!'],
         });
       }
-
-      const box: BoxModel = this.BoxMapper(result[0]);
+      const box: BoxModel = this.BoxMapper(result[0], player[0]);
 
       if (!result[0].get('isOpen')) return box;
 
@@ -38,10 +40,13 @@ export class BoxService {
 
   async openBox(id: string): Promise<any> {
     const query = this.createBoxQuery();
-    query.include(['toyo', 'toyo.toyoPersonaOrigin']);
+    query.include(['toyo', 'toyo.toyoPersonaOrigin', 'player']);
 
     try {
       const result = await query.get(id);
+      const playerQuery = this.createPlayerQuery();
+      playerQuery.equalTo('objectId', result.get('player').id);
+      const player = await playerQuery.find();
 
       if (result.get('isOpen')) {
         response.status(404).json({
@@ -59,6 +64,8 @@ export class BoxService {
         ...box,
         toyoParts: parts,
       };
+      player[0].set('hasPendingUnboxing', false);
+      await player[0].save();
 
       return data;
     } catch (e) {
@@ -68,15 +75,22 @@ export class BoxService {
     }
   }
 
-  private BoxMapper(result: Parse.Object<Parse.Attributes>): BoxModel {
+  private BoxMapper(result: Parse.Object<Parse.Attributes>, player?: Parse.Object<Parse.Attributes>): BoxModel {
     const box: BoxModel = new BoxModel();
 
     box.toyoHash = result.get('toyoHash');
     box.typeId = result.get('typeId');
     box.tokenId = result.get('tokenId');
     box.toyo = result.get('toyo');
+    if (player) box.player = player;
 
     return box;
+  }
+
+  private createPlayerQuery(): Parse.Query {
+    const Player = Parse.Object.extend('Players');
+    const playerQuery = new Parse.Query(Player);
+    return playerQuery;
   }
 
   private createBoxQuery(): Parse.Query {
