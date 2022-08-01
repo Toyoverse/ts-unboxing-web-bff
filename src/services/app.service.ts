@@ -24,7 +24,9 @@ export class AppService {
         walletAddress,
         box.tokenId,
       );
-      if (boxOnChain) return box;
+      if (boxOnChain) {
+        return box;
+      }
 
       return response.status(500).json({
         error: ['The box does not belong to the player'],
