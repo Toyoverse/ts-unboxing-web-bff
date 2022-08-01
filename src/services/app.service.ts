@@ -24,13 +24,15 @@ export class AppService {
         walletAddress,
         box.tokenId,
       );
+
       if (boxOnChain){
         const player = box.player;
         player.set('hasPendingUnboxing', true);
         await player.save();
         return box;
       } 
-      response.status(500).json({
+
+      return response.status(500).json({
         error: ['The box does not belong to the player'],
       });
     } catch (e) {
