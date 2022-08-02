@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import ToyoModel from './Toyo.model';
 import * as Parse from 'parse/node';
 
-export default class BoxModel implements Box {
+export default class ClosedBoxDetail {
   @ApiProperty()
   toyoHash?: string;
   @ApiProperty()
@@ -13,15 +13,7 @@ export default class BoxModel implements Box {
   @ApiProperty()
   typeId: string;
   @ApiProperty()
-  tokenIdClosedBox: string;
-  @ApiProperty()
-  tokenIdOpenBox: string;
-  @ApiProperty()
-  toyo: ToyoModel;
-  @ApiProperty()
   isOpen: boolean;
-  @ApiProperty()
-  player?: Parse.Object<Parse.Attributes>;
 
   constructor() {}
 }

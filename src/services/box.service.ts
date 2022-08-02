@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import BoxModel from '../models/Box.model';
 import * as Parse from 'parse/node';
-import { response } from 'express';
+import { response, Response } from 'express';
 
 @Injectable()
 export class BoxService {
@@ -10,78 +10,83 @@ export class BoxService {
     this.ParseServerConfiguration();
   }
 
-  async findBoxById(id: string, walletAddress?:string): Promise<BoxModel> {
+  async findBoxById(id: string, walletAddress: string, response: Response): Promise<any> {
     const playerQuery = this.createPlayerQuery();
     playerQuery.equalTo('walletAddress', walletAddress);
     const boxesQuery = this.createBoxQuery();
     boxesQuery.equalTo('objectId', id);
+    boxesQuery.include('toyo');
     try {
       const player = await playerQuery.find();
       const result = await boxesQuery.find();
 
       if (result.length < 1 || result[0].id !== id) {
-        response.status(404).json({
+        return response.status(404).json({
           erros: ['Box not found!'],
         });
       }
+
       const box: BoxModel = this.BoxMapper(result[0], player[0]);
 
       if (!result[0].get('isOpen')) return box;
 
-      response.status(500).json({
+      return response.status(500).json({
         error: ['The box is not closed'],
       });
     } catch (error) {
-      response.status(500).json({
+      console.log(error);
+      return response.status(500).json({
         error: [error.message],
       });
     }
   }
 
-  async openBox(id: string): Promise<any> {
+  async openBox(id: string, res: Response): Promise<any> {
     const query = this.createBoxQuery();
     query.include(['toyo', 'toyo.toyoPersonaOrigin', 'player']);
-
     try {
       const result = await query.get(id);
       const playerQuery = this.createPlayerQuery();
       playerQuery.equalTo('objectId', result.get('player').id);
-      const player = await playerQuery.find();
 
+      const player = await playerQuery.find();
       if (result.get('isOpen')) {
-        response.status(404).json({
-          erros: ['Box is already open'],
+        return res.status(404).json({
+          error: ['Box is already open'],
         });
       }
-
       result.set('isOpen', true);
       const saveRes = await result.save();
-      const box: BoxModel = this.BoxMapper(saveRes);
+      let box: BoxModel = this.BoxMapper(saveRes);
+
+      box = JSON.parse(JSON.stringify(box));
 
       const parts = await saveRes.relation('parts').query().find();
+      box.toyo['parts'] = parts;
 
-      const data = {
-        ...box,
-        toyoParts: parts,
-      };
       player[0].set('hasPendingUnboxing', false);
       await player[0].save();
 
-      return data;
+      return box;
     } catch (e) {
-      response.status(500).json({
+      console.log(e);
+      return res.status(500).json({
         error: [e.message],
       });
     }
   }
 
-  private BoxMapper(result: Parse.Object<Parse.Attributes>, player?: Parse.Object<Parse.Attributes>): BoxModel {
+  private BoxMapper(
+    result: Parse.Object<Parse.Attributes>,
+    player?: Parse.Object<Parse.Attributes>,
+  ): BoxModel {
     const box: BoxModel = new BoxModel();
 
     box.toyoHash = result.get('toyoHash');
     box.typeId = result.get('typeId');
     box.tokenId = result.get('tokenId');
     box.toyo = result.get('toyo');
+    box.isOpen = result.get('isOpen');
     if (player) box.player = player;
 
     return box;

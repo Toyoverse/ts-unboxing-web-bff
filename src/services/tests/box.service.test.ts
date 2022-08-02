@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
+import { response } from 'express';
 import { BoxService } from '../../services/box.service';
 
 describe('BoxService', () => {
@@ -42,7 +43,7 @@ describe('BoxService', () => {
     it('should return the box opened with the toyo info', async () => {
       const boxId = 'GQr8bKE2xa';
 
-      const result = await boxService.openBox(boxId);
+      const result = await boxService.openBox(boxId, response);
       expect(result).toHaveProperty('toyo');
     });
   });

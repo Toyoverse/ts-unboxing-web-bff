@@ -2,6 +2,7 @@ import { Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
 import { ApiHeader, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import BoxModel from '../models/Box.model';
+import ClosedBoxDetail from '../models/ClosedBoxDetail.model';
 import { AppService } from '../services/app.service';
 
 @ApiHeader({
@@ -14,25 +15,27 @@ export class AppController {
 
   @ApiTags('Boxes')
   @ApiParam({ name: 'id', description: 'Box Id to get details' })
-  @ApiResponse({ status: 200, type: BoxModel })
+  @ApiResponse({ status: 200, type: ClosedBoxDetail })
   @Get('/closedbox/:id')
   async getBoxDetail(
     @Req() request: Request,
     @Res() response: Response,
     @Param('id') id: string,
-  ) { 
+  ) {
     try {
-      const box = await this.appService.findBoxDetailById(
+      const box: BoxModel = await this.appService.findBoxDetailById(
         response.locals.walletId,
         id,
+        response
       );
 
       response.status(200).json({
-        Box: {
-          toyoHash: box.toyoHash,
-          typeId: box.typeId,
-          tokenId: box.tokenId
-        }
+        toyoHash: box.toyoHash,
+        toyoSignature: box.toyoSignature,
+        tokenId: box.tokenId,
+        typeId: box.typeId,
+        isOpen: box.isOpen,
+        objectId: id,
       });
     } catch {
       return response.status(500).json({
@@ -51,12 +54,13 @@ export class AppController {
     @Param('id') id: string,
   ) {
     try {
-      const box = await this.appService.openBox(id);
+      const box = await this.appService.openBox(id, res);
 
       res.status(200).json({
-        Box: box,
+        box,
       });
     } catch (e) {
+      console.log(e);
       return res.status(500).json({
         errors: ['Could not open box'],
       });

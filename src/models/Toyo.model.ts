@@ -10,6 +10,8 @@ export default class ToyoModel implements Toyo {
   @ApiProperty()
   hasTenParts?: boolean;
   @ApiProperty()
+  parts?: any;
+  @ApiProperty()
   isToyoSelected?: boolean;
   @ApiProperty()
   createdAt?: Date;
