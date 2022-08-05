@@ -45,7 +45,8 @@ export class AppService {
         error: ['The box does not belong to the player'],
       });
     } catch (e) {
-      return response.status(500).json({
+      console.log("ERRO");
+      console.log({
         error: [e.message],
       });
     }
@@ -59,7 +60,7 @@ export class AppService {
       return box;
     } catch (e) {
       console.log(e);
-      return res.status(500).json({
+      console.log({
         error: [e.message],
       });
     }
