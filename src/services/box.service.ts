@@ -3,10 +3,17 @@ import { ConfigService } from '@nestjs/config';
 import BoxModel from '../models/Box.model';
 import * as Parse from 'parse/node';
 import { response, Response } from 'express';
+import { TypeId } from 'src/enums/SmartContracts';
+import { HashBoxService } from './hashbox.service';
+import { ToyoService } from './toyo.service';
 
 @Injectable()
 export class BoxService {
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private readonly hashBoxService: HashBoxService,
+    private readonly toyoService: ToyoService,
+    ) {
     this.ParseServerConfiguration();
   }
 
@@ -55,18 +62,30 @@ export class BoxService {
           error: ['Box is already open'],
         });
       }
-      result.set('isOpen', true);
       const saveRes = await result.save();
       let box: BoxModel = this.BoxMapper(saveRes);
-
+      box.isOpen = true;
       box = JSON.parse(JSON.stringify(box));
+      const toyoHash = this.hashBoxService.decryptHash(box.toyoHash);
+      const toyo = await this.toyoService.findToyoById((await toyoHash).id);
 
-      const parts = await saveRes.relation('parts').query().find();
-      box.toyo['parts'] = parts;
+      const parts = await toyo[0].relation('parts').query().find();
+
+      const typeIdOpenBox: string = this.generateTypeIdOpenBox(result.get('typeId'));
+
+      result.set('toyo', toyo[0]);
+      result.set('isOpen', true);
+      result.set('typeId', typeIdOpenBox);
+      result.set('typeIdOpenBox', typeIdOpenBox);
+      const relation = result.relation('parts');
+      relation.add(parts);
+      await result.save();
 
       player[0].set('hasPendingUnboxing', false);
       await player[0].save();
 
+      box.toyo = this.toyoService.toyoMapper(toyo[0], parts);
+      
       return box;
     } catch (e) {
       console.log(e);
@@ -103,6 +122,27 @@ export class BoxService {
     const query: Parse.Query = new Parse.Query(Boxes);
 
     return query;
+  }
+  private generateTypeIdOpenBox(type:string ):string{
+    const key: number = parseInt(type, 10);
+    switch (key) {
+      case TypeId.TOYO_FORTIFIED_JAKANA_SEED_BOX:
+        return String(TypeId.OPEN_FORTIFIED_JAKANA_SEED_BOX)
+        break;
+      case TypeId.TOYO_JAKANA_SEED_BOX:
+        return String(TypeId.OPEN_JAKANA_SEED_BOX)
+        break;
+      case TypeId.TOYO_FORTIFIED_KYTUNT_SEED_BOX:
+        return String(TypeId.OPEN_FORTIFIED_KYTUNT_SEED_BOX)
+        break;
+      case TypeId.TOYO_KYTUNT_SEED_BOX:
+        return String(TypeId.OPEN_KYTUNT_SEED_BOX)
+        break;
+      default:
+        return undefined;
+        break;
+    }
+
   }
 
   /**
