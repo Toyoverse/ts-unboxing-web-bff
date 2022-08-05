@@ -13,11 +13,15 @@ export class BoxService {
     private configService: ConfigService,
     private readonly hashBoxService: HashBoxService,
     private readonly toyoService: ToyoService,
-    ) {
+  ) {
     this.ParseServerConfiguration();
   }
 
-  async findBoxById(id: string, walletAddress: string, response: Response): Promise<any> {
+  async findBoxById(
+    id: string,
+    walletAddress: string,
+    response: Response,
+  ): Promise<any> {
     const playerQuery = this.createPlayerQuery();
     playerQuery.equalTo('walletAddress', walletAddress);
     const boxesQuery = this.createBoxQuery();
@@ -50,7 +54,7 @@ export class BoxService {
 
   async openBox(id: string, res: Response): Promise<any> {
     const query = this.createBoxQuery();
-    query.include(['toyo', 'toyo.toyoPersonaOrigin', 'player']);
+    query.include(['player']);
     try {
       const result = await query.get(id);
       const playerQuery = this.createPlayerQuery();
@@ -62,16 +66,17 @@ export class BoxService {
           error: ['Box is already open'],
         });
       }
-      const saveRes = await result.save();
-      let box: BoxModel = this.BoxMapper(saveRes);
-      box.isOpen = true;
-      box = JSON.parse(JSON.stringify(box));
-      const toyoHash = this.hashBoxService.decryptHash(box.toyoHash);
-      const toyo = await this.toyoService.findToyoById((await toyoHash).id);
+
+      const toyoHash = await this.hashBoxService.decryptHash(
+        result.get('toyoHash'),
+      );
+      const toyo = await this.toyoService.findToyoById(toyoHash.id);
 
       const parts = await toyo[0].relation('parts').query().find();
 
-      const typeIdOpenBox: string = this.generateTypeIdOpenBox(result.get('typeId'));
+      const typeIdOpenBox: string = this.generateTypeIdOpenBox(
+        result.get('typeId'),
+      );
 
       result.set('toyo', toyo[0]);
       result.set('isOpen', true);
@@ -84,8 +89,10 @@ export class BoxService {
       player[0].set('hasPendingUnboxing', false);
       await player[0].save();
 
+      const box: BoxModel = this.BoxMapper(result);
+      box.isOpen = true;
       box.toyo = this.toyoService.toyoMapper(toyo[0], parts);
-      
+
       return box;
     } catch (e) {
       console.log(e);
@@ -123,26 +130,25 @@ export class BoxService {
 
     return query;
   }
-  private generateTypeIdOpenBox(type:string ):string{
+  private generateTypeIdOpenBox(type: string): string {
     const key: number = parseInt(type, 10);
     switch (key) {
       case TypeId.TOYO_FORTIFIED_JAKANA_SEED_BOX:
-        return String(TypeId.OPEN_FORTIFIED_JAKANA_SEED_BOX)
+        return String(TypeId.OPEN_FORTIFIED_JAKANA_SEED_BOX);
         break;
       case TypeId.TOYO_JAKANA_SEED_BOX:
-        return String(TypeId.OPEN_JAKANA_SEED_BOX)
+        return String(TypeId.OPEN_JAKANA_SEED_BOX);
         break;
       case TypeId.TOYO_FORTIFIED_KYTUNT_SEED_BOX:
-        return String(TypeId.OPEN_FORTIFIED_KYTUNT_SEED_BOX)
+        return String(TypeId.OPEN_FORTIFIED_KYTUNT_SEED_BOX);
         break;
       case TypeId.TOYO_KYTUNT_SEED_BOX:
-        return String(TypeId.OPEN_KYTUNT_SEED_BOX)
+        return String(TypeId.OPEN_KYTUNT_SEED_BOX);
         break;
       default:
         return undefined;
         break;
     }
-
   }
 
   /**

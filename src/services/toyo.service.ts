@@ -13,6 +13,7 @@ export class ToyoService {
     const Toyo = Parse.Object.extend('Toyo');
     const toyoQuery = new Parse.Query(Toyo);
     toyoQuery.equalTo('objectId', id);
+    toyoQuery.include('toyoPersonaOrigin');
 
     try {
       const result = await toyoQuery.include('parts').find();
@@ -31,25 +32,27 @@ export class ToyoService {
     }
   }
 
-  toyoMapper(result: Parse.Object<Parse.Attributes>, parts: Parse.Object<Parse.Attributes>[]): ToyoModel{
+  toyoMapper(
+    result: Parse.Object<Parse.Attributes>,
+    parts: Parse.Object<Parse.Attributes>[],
+  ): ToyoModel {
     return {
-        id: this.objectIdEncoded(result.id),
-        name: result.get('name'),
-        hasTenParts: result.get('hasTenParts'),
-        parts: parts.map(part=>{
-            delete part.id;
-            return part;
-        }),
-        isToyoSelected: result.get('isToyoSelected'),
-        tokenId: result.get('tokenId'),
-        transactionHash: result.get('transactionHash'),
-        toyoPersonaOrigin: result.get('toyoPersonaOrigin'),
-        createdAt: result.get('createdAt'),
-        updateAt: result.get('updateAt')
-    }
-
+      id: this.objectIdEncoded(result.id),
+      name: result.get('name'),
+      hasTenParts: result.get('hasTenParts'),
+      parts: parts.map((part) => {
+        delete part.id;
+        return part;
+      }),
+      isToyoSelected: result.get('isToyoSelected'),
+      tokenId: result.get('tokenId'),
+      transactionHash: result.get('transactionHash'),
+      toyoPersonaOrigin: result.get('toyoPersonaOrigin'),
+      createdAt: result.get('createdAt'),
+      updateAt: result.get('updateAt'),
+    };
   }
-  private  objectIdEncoded(objectId: string):string {
+  private objectIdEncoded(objectId: string): string {
     return Buffer.from(objectId).toString('base64');
   }
 
