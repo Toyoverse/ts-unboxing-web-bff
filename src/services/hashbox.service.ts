@@ -40,9 +40,9 @@ export class HashBoxService {
       const { toyo } = box;
 
       const eth: Eth = new Web3Eth();
-      const hash:string = box.toyoHash;
+      const hash: string = box.toyoHash;
 
-      const message = soliditySha3(hash);
+      const message = soliditySha3(box.tokenId + hash);
       const { signature } = eth.accounts.sign(message, this.secretKey);
 
       return signature;
