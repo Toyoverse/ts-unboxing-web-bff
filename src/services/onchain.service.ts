@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { request, gql } from 'graphql-request';
+import {
+  GetTokenSwappedEntitiesResp,
+  SwappedEntities,
+} from '../models/interfaces/IChain';
 
 @Injectable()
 export class OnchainService {
@@ -27,5 +31,28 @@ export class OnchainService {
     );
 
     return data.tokenOwnerEntities;
+  }
+
+  async getTokenSwappedEntitiesByClosedBoxTokenId(
+    closedBoxTokenId: string,
+  ): Promise<SwappedEntities[]> {
+    const query = gql`
+      {
+        tokenSwappedEntities(where: {fromTokenId: ${closedBoxTokenId}}) {
+          fromTokenId,
+          toTokenId,
+          transactionHash,
+          fromTypeId,
+          toTypeId
+        }
+      }
+    `;
+
+    const data = await request<GetTokenSwappedEntitiesResp>(
+      this.configService.get<string>('THEGRAPH_URL'),
+      query,
+    );
+
+    return data.tokenSwappedEntities;
   }
 }

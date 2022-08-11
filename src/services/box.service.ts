@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import BoxModel from '../models/Box.model';
 import * as Parse from 'parse/node';
-import { response, Response } from 'express';
+import { Response } from 'express';
 import { TypeId } from '../enums/SmartContracts';
 import { HashBoxService } from './hashbox.service';
 import { ToyoService } from './toyo.service';
+import { OnchainService } from './onchain.service';
 
 @Injectable()
 export class BoxService {
@@ -13,6 +14,7 @@ export class BoxService {
     private configService: ConfigService,
     private readonly hashBoxService: HashBoxService,
     private readonly toyoService: ToyoService,
+    private readonly onChainService: OnchainService,
   ) {
     this.ParseServerConfiguration();
   }
@@ -74,7 +76,24 @@ export class BoxService {
         result.get('toyoHash'),
       );
 
+      const swappedEntities =
+        await this.onChainService.getTokenSwappedEntitiesByClosedBoxTokenId(
+          result.get('tokenIdClosedBox'),
+        );
+
+      if (swappedEntities.length === 0) {
+        return res.status(500).json({
+          error: ['An error occurred with the box opening transaction'],
+        });
+      }
+
+      const findToyo = swappedEntities.find((i) => i.toTypeId === '9');
+      const findBox = swappedEntities.find((i) => i.toTypeId !== '9');
+
       const toyo = await this.toyoService.findToyoById(toyoHash.id);
+      toyo[0].set('tokenId', findToyo.toTokenId);
+      toyo[0].set('transactionHash', findToyo.transactionHash);
+      await toyo[0].save();
 
       const parts = await toyo[0].relation('parts').query().find();
 
@@ -86,6 +105,10 @@ export class BoxService {
       result.set('isOpen', true);
       result.set('typeId', typeIdOpenBox);
       result.set('typeIdOpenBox', typeIdOpenBox);
+
+      result.set('tokenIdOpenBox', findBox.toTokenId);
+      result.set('tokenId', findBox.toTokenId);
+      result.set('transactionHash', findBox.transactionHash);
 
       const toyoRelation = player[0].relation('toyos');
       toyoRelation.add(toyo[0]);
@@ -139,6 +162,7 @@ export class BoxService {
 
     return query;
   }
+
   private generateTypeIdOpenBox(type: string): string {
     const key: number = parseInt(type, 10);
     switch (key) {
