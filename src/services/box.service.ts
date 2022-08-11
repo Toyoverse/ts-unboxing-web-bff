@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import BoxModel from '../models/Box.model';
 import * as Parse from 'parse/node';
 import { response, Response } from 'express';
-import { TypeId } from 'src/enums/SmartContracts';
+import { TypeId } from '../enums/SmartContracts';
 import { HashBoxService } from './hashbox.service';
 import { ToyoService } from './toyo.service';
 
@@ -55,21 +55,25 @@ export class BoxService {
   async openBox(id: string, res: Response): Promise<any> {
     const query = this.createBoxQuery();
     query.include(['player']);
+
     try {
       const result = await query.get(id);
-      const playerQuery = this.createPlayerQuery();
-      playerQuery.equalTo('objectId', result.get('player').id);
 
-      const player = await playerQuery.find();
       if (result.get('isOpen')) {
         return res.status(404).json({
           error: ['Box is already open'],
         });
       }
 
+      const playerQuery = this.createPlayerQuery();
+      playerQuery.equalTo('objectId', result.get('player').id);
+
+      const player = await playerQuery.find();
+
       const toyoHash = await this.hashBoxService.decryptHash(
         result.get('toyoHash'),
       );
+
       const toyo = await this.toyoService.findToyoById(toyoHash.id);
 
       const parts = await toyo[0].relation('parts').query().find();
@@ -82,12 +86,17 @@ export class BoxService {
       result.set('isOpen', true);
       result.set('typeId', typeIdOpenBox);
       result.set('typeIdOpenBox', typeIdOpenBox);
-      const relation = result.relation('parts');
-      relation.add(parts);
-      await result.save();
+
+      const toyoRelation = player[0].relation('toyos');
+      toyoRelation.add(toyo[0]);
+
+      const toyoPartsRelation = player[0].relation('toyoParts');
+      toyoPartsRelation.add(parts);
 
       player[0].set('hasPendingUnboxing', false);
       await player[0].save();
+
+      await result.save();
 
       const box: BoxModel = this.BoxMapper(result);
       box.isOpen = true;
