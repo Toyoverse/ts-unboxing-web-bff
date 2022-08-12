@@ -7,6 +7,7 @@ import { TypeId } from '../enums/SmartContracts';
 import { HashBoxService } from './hashbox.service';
 import { ToyoService } from './toyo.service';
 import { OnchainService } from './onchain.service';
+import { SwappedEntities } from '../models/interfaces/IChain';
 
 @Injectable()
 export class BoxService {
@@ -68,9 +69,7 @@ export class BoxService {
       }
 
       const playerQuery = this.createPlayerQuery();
-      playerQuery.equalTo('objectId', result.get('player').id);
-
-      const player = await playerQuery.find();
+      const player = await playerQuery.get(result.get('player').id);
 
       const toyoHash = await this.hashBoxService.decryptHash(
         result.get('toyoHash'),
@@ -87,39 +86,18 @@ export class BoxService {
         });
       }
 
-      const findToyo = swappedEntities.find((i) => i.toTypeId === '9');
-      const findBox = swappedEntities.find((i) => i.toTypeId !== '9');
+      const blockchainToyo = swappedEntities.find((i) => i.toTypeId === '9');
+      const blockchainBox = swappedEntities.find((i) => i.toTypeId !== '9');
 
       const toyo = await this.toyoService.findToyoById(toyoHash.id);
-      toyo[0].set('tokenId', findToyo.toTokenId);
-      toyo[0].set('transactionHash', findToyo.transactionHash);
+      toyo[0].set('tokenId', blockchainToyo.toTokenId);
+      toyo[0].set('transactionHash', blockchainToyo.transactionHash);
       await toyo[0].save();
 
       const parts = await toyo[0].relation('parts').query().find();
 
-      const typeIdOpenBox: string = this.generateTypeIdOpenBox(
-        result.get('typeId'),
-      );
-
-      result.set('toyo', toyo[0]);
-      result.set('isOpen', true);
-      result.set('typeId', typeIdOpenBox);
-      result.set('typeIdOpenBox', typeIdOpenBox);
-
-      result.set('tokenIdOpenBox', findBox.toTokenId);
-      result.set('tokenId', findBox.toTokenId);
-      result.set('transactionHash', findBox.transactionHash);
-
-      const toyoRelation = player[0].relation('toyos');
-      toyoRelation.add(toyo[0]);
-
-      const toyoPartsRelation = player[0].relation('toyoParts');
-      toyoPartsRelation.add(parts);
-
-      player[0].set('hasPendingUnboxing', false);
-      await player[0].save();
-
-      await result.save();
+      await this.updatePlayerFields(toyo, parts, player);
+      await this.updateBoxFields(result, blockchainBox, toyo);
 
       const box: BoxModel = this.BoxMapper(result);
       box.isOpen = true;
@@ -161,6 +139,41 @@ export class BoxService {
     const query: Parse.Query = new Parse.Query(Boxes);
 
     return query;
+  }
+
+  private async updateBoxFields(
+    boxQuery: Parse.Object<Parse.Attributes>,
+    blockchainBox: SwappedEntities,
+    toyo: Parse.Object<Parse.Attributes>[],
+  ) {
+    const typeIdOpenBox: string = this.generateTypeIdOpenBox(
+      boxQuery.get('typeId'),
+    );
+
+    boxQuery.set('toyo', toyo[0]);
+    boxQuery.set('isOpen', true);
+    boxQuery.set('typeId', typeIdOpenBox);
+    boxQuery.set('typeIdOpenBox', typeIdOpenBox);
+    boxQuery.set('tokenIdOpenBox', blockchainBox.toTokenId);
+    boxQuery.set('tokenId', blockchainBox.toTokenId);
+    boxQuery.set('transactionHash', blockchainBox.transactionHash);
+
+    await boxQuery.save();
+  }
+
+  private async updatePlayerFields(
+    toyo: Parse.Object<Parse.Attributes>[],
+    toyoParts: Parse.Object<Parse.Attributes>[],
+    playerQuery: Parse.Object<Parse.Attributes>,
+  ) {
+    const toyoRelation = playerQuery.relation('toyos');
+    toyoRelation.add(toyo);
+
+    const toyoPartsRelation = playerQuery.relation('toyoParts');
+    toyoPartsRelation.add(toyoParts);
+
+    playerQuery.set('hasPendingUnboxing', false);
+    await playerQuery.save();
   }
 
   private generateTypeIdOpenBox(type: string): string {
