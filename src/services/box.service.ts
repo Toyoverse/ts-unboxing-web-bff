@@ -66,7 +66,7 @@ export class BoxService {
       const result = await query.get(id);
 
       if (result.get('isOpen')) {
-        return res.status(404).json({
+        return res.status(404).send({
           error: ['Box is already open'],
         });
       }

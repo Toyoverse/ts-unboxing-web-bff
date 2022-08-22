@@ -56,8 +56,11 @@ export class AppService {
     try {
       const boxId: string = Buffer.from(id, 'base64').toString('ascii');
       const box: BoxModel = await this.boxService.openBox(boxId, res);
-
-      return box;
+      
+      if (box.tokenId) {
+        return box;
+      }
+      return;
     } catch (e) {
       console.log(e);
       console.log({
