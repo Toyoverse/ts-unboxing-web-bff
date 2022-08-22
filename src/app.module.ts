@@ -7,6 +7,8 @@ import {
   BoxService,
   HashBoxService,
   ToyoService,
+  ToyoJobConsumer,
+  ToyoJobProducer
 } from './services';
 import { AuthMiddleware } from './middlewares/auth.middleware';
 import { AESCrypt } from './utils/crypt/aes-crypt';
@@ -25,6 +27,8 @@ import di from './di';
     BoxService,
     HashBoxService,
     ToyoService,
+    ToyoJobConsumer,
+    ToyoJobProducer,
     { provide: di.AESCrypt, useClass: AESCrypt },
   ],
 })

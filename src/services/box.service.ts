@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import BoxModel from '../models/Box.model';
 import * as Parse from 'parse/node';
@@ -8,6 +8,7 @@ import { HashBoxService } from './hashbox.service';
 import { ToyoService } from './toyo.service';
 import { OnchainService } from './onchain.service';
 import { SwappedEntities } from '../models/interfaces/IChain';
+import { ToyoJobProducer } from '.';
 
 @Injectable()
 export class BoxService {
@@ -16,6 +17,8 @@ export class BoxService {
     private readonly hashBoxService: HashBoxService,
     private readonly toyoService: ToyoService,
     private readonly onChainService: OnchainService,
+    @Inject(forwardRef(() => ToyoJobProducer))
+    private readonly toyoJobProducer: ToyoJobProducer,
   ) {
     this.ParseServerConfiguration();
   }
@@ -74,31 +77,16 @@ export class BoxService {
       const toyoHash = await this.hashBoxService.decryptHash(
         result.get('toyoHash'),
       );
-
-      const swappedEntities =
-        await this.onChainService.getTokenSwappedEntitiesByClosedBoxTokenId(
-          result.get('tokenIdClosedBox'),
-        );
-
-      if (swappedEntities.length === 0) {
-        return res.status(500).json({
-          error: ['An error occurred with the box opening transaction'],
-        });
-      }
-
-      const blockchainToyo = swappedEntities.find((i) => i.toTypeId === '9');
-      const blockchainBox = swappedEntities.find((i) => i.toTypeId !== '9');
-
       const toyo = await this.toyoService.findToyoById(toyoHash.id);
-      toyo[0].set('tokenId', blockchainToyo.toTokenId);
-      toyo[0].set('transactionHash', blockchainToyo.transactionHash);
-      await toyo[0].save();
+
+      this.toyoJobProducer.saveToyo(result, toyo);
 
       const parts = await toyo[0].relation('parts').query().find();
 
       await this.updatePlayerFields(toyo, parts, player);
-      await this.updateBoxFields(result, blockchainBox, toyo);
+      await this.updateBoxFields(result, toyo);
 
+      
       const box: BoxModel = this.BoxMapper(result);
       box.isOpen = true;
       box.toyo = this.toyoService.toyoMapper(toyo[0], parts);
@@ -141,10 +129,10 @@ export class BoxService {
     return query;
   }
 
-  private async updateBoxFields(
+  async updateBoxFields(
     boxQuery: Parse.Object<Parse.Attributes>,
-    blockchainBox: SwappedEntities,
     toyo: Parse.Object<Parse.Attributes>[],
+    blockchainBox?: SwappedEntities,
   ) {
     const typeIdOpenBox: string = this.generateTypeIdOpenBox(
       boxQuery.get('typeId'),
@@ -154,10 +142,11 @@ export class BoxService {
     boxQuery.set('isOpen', true);
     boxQuery.set('typeId', typeIdOpenBox);
     boxQuery.set('typeIdOpenBox', typeIdOpenBox);
-    boxQuery.set('tokenIdOpenBox', blockchainBox.toTokenId);
-    boxQuery.set('tokenId', blockchainBox.toTokenId);
-    boxQuery.set('transactionHash', blockchainBox.transactionHash);
-
+    if(blockchainBox){
+      boxQuery.set('tokenIdOpenBox', blockchainBox.toTokenId);
+      boxQuery.set('tokenId', blockchainBox.toTokenId);
+      boxQuery.set('transactionHash', blockchainBox.transactionHash);
+    }
     await boxQuery.save();
   }
 
