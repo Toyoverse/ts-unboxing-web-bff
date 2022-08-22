@@ -55,10 +55,12 @@ export class AppController {
   ) {
     try {
       const box = await this.appService.openBox(id, res);
-
-      res.status(200).json({
-        box,
-      });
+      if (box) {
+        return res.status(200).send({
+          box,
+        });
+      }
+      
     } catch (e) {
       console.log(e);
       return res.status(500).json({
