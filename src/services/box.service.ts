@@ -83,7 +83,7 @@ export class BoxService {
 
       const parts = await toyo[0].relation('parts').query().find();
 
-      this.updatePlayerFields(toyo, parts, player);
+      await this.updatePlayerFields(toyo, parts, player);
       await this.updateBoxFields(result, toyo);
 
       
