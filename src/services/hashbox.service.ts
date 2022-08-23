@@ -21,7 +21,7 @@ export class HashBoxService {
     @Inject(di.AESCrypt) private crypt: Crypt,
   ) {
     this.ParseServerConfiguration();
-    this.secretKey = this.configService.get<string>('PRIVATE_KEY');
+    this.secretKey = this.configService.get<string>('PRIVATE_KEY_HASHBOX');
   }
 
   async generateHash(toyo: ToyoModel): Promise<string> {

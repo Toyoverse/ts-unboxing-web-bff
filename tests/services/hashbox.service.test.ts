@@ -29,7 +29,7 @@ describe('Unit tests for HashBox service', () => {
           provide: ConfigService,
           useValue: {
             get: jest.fn((key: string) => {
-              if (key === 'PRIVATE_KEY') {
+              if (key === 'PRIVATE_KEY_HASHBOX') {
                 return privateKey;
               }
               return null;
