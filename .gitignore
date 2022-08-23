@@ -34,3 +34,11 @@ test-report.xml
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# AWS Settings
+/.aws
+.env.production
+/.serverless
+/_optimize
+/.build
+/.warmup
