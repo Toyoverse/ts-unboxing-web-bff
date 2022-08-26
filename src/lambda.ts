@@ -2,11 +2,20 @@ import { NestFactory } from '@nestjs/core';
 import { configure as serverlessExpress } from '@vendia/serverless-express';
 import { Callback, Context, Handler } from 'aws-lambda';
 import { AppModule } from './app.module';
+import * as cors from 'cors';
 
 let server: Handler;
 
 async function bootstrap(): Promise<Handler> {
   const app = await NestFactory.create(AppModule);
+
+  const options: cors.CorsOptions = {
+    methods: 'GET,POST,OPTIONS',
+    origin: '*',
+  };
+
+  app.use(cors(options));
+
   await app.init();
 
   const expressApp = app.getHttpAdapter().getInstance();
