@@ -18,12 +18,12 @@ export class AESCrypt {
   }
 
   encrypt(text: string, hexKey: string): string {
-    const _key = CryptoJS.enc.Hex.parse(hexKey);
+    const _key = CryptoJS.enc.Hex.parse(hexKey.replace('0x', ''));
     return CryptoJS.AES.encrypt(text, _key, this.cfg).toString();
   }
 
   decrypt(ciphertext: string, hexKey: string): string {
-    const _key = CryptoJS.enc.Hex.parse(hexKey);
+    const _key = CryptoJS.enc.Hex.parse(hexKey.replace('0x', ''));
     return CryptoJS.AES.decrypt(ciphertext, _key, this.cfg).toString(
       CryptoJS.enc.Utf8,
     );
