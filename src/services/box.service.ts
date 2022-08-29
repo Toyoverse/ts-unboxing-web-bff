@@ -74,10 +74,8 @@ export class BoxService {
       const playerQuery = this.createPlayerQuery();
       const player = await playerQuery.get(result.get('player').id);
 
-      const toyoHash = await this.hashBoxService.decryptHash(
-        result.get('toyoHash'),
-      );
-      const toyo = await this.toyoService.findToyoById(toyoHash.id);
+      const toyoId = this.hashBoxService.decryptHash(result.get('toyoHash'));
+      const toyo = await this.toyoService.findToyoById(toyoId);
 
       this.toyoJobProducer.saveToyo(result, toyo);
 
@@ -86,7 +84,6 @@ export class BoxService {
       await this.updatePlayerFields(toyo, parts, player);
       await this.updateBoxFields(result, toyo);
 
-      
       const box: BoxModel = this.BoxMapper(result);
       box.isOpen = true;
       box.toyo = this.toyoService.toyoMapper(toyo[0], parts);
@@ -142,7 +139,7 @@ export class BoxService {
     boxQuery.set('isOpen', true);
     boxQuery.set('typeId', typeIdOpenBox);
     boxQuery.set('typeIdOpenBox', typeIdOpenBox);
-    if(blockchainBox){
+    if (blockchainBox) {
       boxQuery.set('tokenIdOpenBox', blockchainBox.toTokenId);
       boxQuery.set('tokenId', blockchainBox.toTokenId);
       boxQuery.set('transactionHash', blockchainBox.transactionHash);

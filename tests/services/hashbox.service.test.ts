@@ -42,32 +42,30 @@ describe('Unit tests for HashBox service', () => {
     hasboxService = module.get<HashBoxService>(HashBoxService);
   });
 
-  test('generate hash', async () => {
-    const toyo = new ToyoModel({ id: 'id', name: 'name' });
+  test('generate hash', () => {
+    const id = '4BrO23lLIa';
+    const toyo = new ToyoModel({ id, name: 'name' });
 
-    const json = JSON.stringify({ id: 'id', name: 'name' });
     const expectHash = 'fdalfdakfdasfadsv2';
 
     crypt.encrypt.mockReturnValue(expectHash);
 
-    const hash = await hasboxService.generateHash(toyo);
+    const hash = hasboxService.generateHash(toyo);
 
-    expect(crypt.encrypt).toBeCalledWith(json, privateKey);
+    expect(crypt.encrypt).toBeCalledWith(id, privateKey);
 
     expect(hash).toEqual(expectHash);
   });
 
-  test('decrypt hash', async () => {
+  test('decrypt hash', () => {
     const hash = 'fdafdafdasfd';
-    const decryptedObject = { id: 'toyo.id', name: 'toyo.name' };
-    const decryptedJson = JSON.stringify(decryptedObject);
-    crypt.decrypt.mockReturnValue(decryptedJson);
+    const decryptedId = '4BrO23lLIa';
+    crypt.decrypt.mockReturnValue(decryptedId);
 
-    const toyoModel = await hasboxService.decryptHash(hash);
+    const id = hasboxService.decryptHash(hash);
 
     expect(crypt.decrypt).toHaveBeenCalledWith(hash, privateKey);
 
-    expect(toyoModel.id).toEqual(decryptedObject.id);
-    expect(toyoModel.name).toEqual(decryptedObject.name);
+    expect(id).toEqual(decryptedId);
   });
 });
