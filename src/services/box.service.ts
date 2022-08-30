@@ -102,7 +102,7 @@ export class BoxService {
     toyo: Parse.Object<Parse.Attributes>[],
   ) {
     let count = 0;
-    // setTimeout(async () => {
+    setTimeout(async () => {
     while (count < 5) {
       const swappedEntities =
         await this.onChainService.getTokenSwappedEntitiesByClosedBoxTokenId(
@@ -123,7 +123,7 @@ export class BoxService {
         count = 5;
       }
     }
-    // }, 10000);
+    }, 10000);
   }
 
   private BoxMapper(
