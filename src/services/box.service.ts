@@ -77,12 +77,12 @@ export class BoxService {
       const toyoId = this.hashBoxService.decryptHash(result.get('toyoHash'));
       const toyo = await this.toyoService.findToyoById(toyoId);
 
-      this.toyoJobProducer.saveToyo(result, toyo);
+      // await this.toyoJobProducer.saveToyo(result, toyo);
+      await this.saveToyoJob(result, toyo);
 
       const parts = await toyo[0].relation('parts').query().find();
 
       await this.updatePlayerFields(toyo, parts, player);
-      await this.updateBoxFields(result, toyo);
 
       const box: BoxModel = this.BoxMapper(result);
       box.isOpen = true;
@@ -95,6 +95,35 @@ export class BoxService {
         error: [e.message],
       });
     }
+  }
+
+  async saveToyoJob(
+    result: Parse.Object<Parse.Attributes>,
+    toyo: Parse.Object<Parse.Attributes>[],
+  ) {
+    let count = 0;
+    // setTimeout(async () => {
+    while (count < 5) {
+      const swappedEntities =
+        await this.onChainService.getTokenSwappedEntitiesByClosedBoxTokenId(
+          result.get('tokenIdClosedBox'),
+        );
+
+      if (swappedEntities.length === 0) {
+        count++;
+      } else {
+        const blockchainToyo = swappedEntities.find((i) => i.toTypeId === '9');
+        const blockchainBox = swappedEntities.find((i) => i.toTypeId !== '9');
+
+        toyo[0].set('tokenId', blockchainToyo.toTokenId);
+        toyo[0].set('transactionHash', blockchainToyo.transactionHash);
+        await toyo[0].save();
+
+        await this.updateBoxFields(result, toyo, blockchainBox);
+        count = 5;
+      }
+    }
+    // }, 10000);
   }
 
   private BoxMapper(
