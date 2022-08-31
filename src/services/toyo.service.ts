@@ -26,6 +26,7 @@ export class ToyoService {
       }
       return result;
     } catch (error) {
+      console.log(error);
       response.status(500).json({
         error: [error.message],
       });

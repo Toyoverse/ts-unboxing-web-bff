@@ -74,8 +74,14 @@ export class BoxService {
       const playerQuery = this.createPlayerQuery();
       const player = await playerQuery.get(result.get('player').id);
       const toyoId = this.hashBoxService.decryptHash(result.get('toyoHash'));
-
-      const toyo = await this.toyoService.findToyoById(toyoId);
+      //in dev, toyoId has name on it:
+      const position = toyoId.search('name');
+      let toyo;
+      if (position > 0) {
+        toyo = await this.toyoService.findToyoById(JSON.parse(toyoId).id);
+      } else {
+        toyo = await this.toyoService.findToyoById(toyoId);
+      }
 
       // await this.toyoJobProducer.saveToyo(result, toyo);
 

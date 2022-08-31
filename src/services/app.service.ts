@@ -15,37 +15,42 @@ export class AppService {
   ) {
     this.ParseServerConfiguration();
   }
-  async findBoxDetailById(walletAddress: string, id: string, response: Response): Promise<any> {
+  async findBoxDetailById(
+    walletAddress: string,
+    id: string,
+    response: Response,
+  ): Promise<any> {
     try {
       const toyoId: string = Buffer.from(id, 'base64').toString('ascii');
 
       const box: BoxModel = await this.boxService.findBoxById(
         toyoId,
         walletAddress,
-        response
+        response,
       );
 
-      const toyoSignature: string = await this.hashboxService.generateSignature(
-        box,
-      );
+      if (box && box.tokenId) {
+        const toyoSignature: string =
+          await this.hashboxService.generateSignature(box, response);
 
-      const boxOnChain = await this.onchainService.getTokenOwnerEntityByTokenId(
-        walletAddress,
-        box.tokenId,
-      );
+        const boxOnChain =
+          await this.onchainService.getTokenOwnerEntityByTokenId(
+            walletAddress,
+            box.tokenId,
+          );
 
-      if (boxOnChain) {
-        const player = box.player;
-        player.set('hasPendingUnboxing', true);
-        await player.save();
-        return { ...box, toyoSignature };
+        if (boxOnChain) {
+          const player = box.player;
+          player.set('hasPendingUnboxing', true);
+          await player.save();
+          return { ...box, toyoSignature };
+        }
+        return response.status(500).json({
+          error: ['The box does not belong to the player'],
+        });
       }
-
-      return response.status(500).json({
-        error: ['The box does not belong to the player'],
-      });
     } catch (e) {
-      console.log("ERRO");
+      console.log('ERRO');
       console.log({
         error: [e.message],
       });
@@ -56,7 +61,7 @@ export class AppService {
     try {
       const boxId: string = Buffer.from(id, 'base64').toString('ascii');
       const box: BoxModel = await this.boxService.openBox(boxId, res);
-      
+
       if (box.tokenId) {
         return box;
       }

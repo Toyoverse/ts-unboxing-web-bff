@@ -7,7 +7,6 @@ import di from '../di';
 import { Box } from '../models/interfaces/IBox';
 import { Eth } from 'web3-eth';
 import { soliditySha3 } from 'web3-utils';
-import { response } from 'express';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Web3Eth = require('web3-eth');
@@ -31,7 +30,7 @@ export class HashBoxService {
     return this.crypt.decrypt(hashbox, this.secretKey);
   }
 
-  async generateSignature(box: Box): Promise<string> {
+  async generateSignature(box: Box, response): Promise<string> {
     try {
       const { toyo } = box;
 
@@ -43,7 +42,7 @@ export class HashBoxService {
 
       return signature;
     } catch (e) {
-      response.status(500).json({
+      return response.status(500).json({
         error: [e.message],
       });
     }

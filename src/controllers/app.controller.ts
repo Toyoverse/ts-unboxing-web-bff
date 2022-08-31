@@ -26,17 +26,18 @@ export class AppController {
       const box: BoxModel = await this.appService.findBoxDetailById(
         response.locals.walletId,
         id,
-        response
+        response,
       );
-
-      response.status(200).json({
-        toyoHash: box.toyoHash,
-        toyoSignature: box.toyoSignature,
-        tokenId: box.tokenId,
-        typeId: box.typeId,
-        isOpen: box.isOpen,
-        objectId: id,
-      });
+      if (box && box.tokenId) {
+        return response.status(200).json({
+          toyoHash: box.toyoHash,
+          toyoSignature: box.toyoSignature,
+          tokenId: box.tokenId,
+          typeId: box.typeId,
+          isOpen: box.isOpen,
+          objectId: id,
+        });
+      }
     } catch {
       return response.status(500).json({
         errors: ['Error could not return box'],
@@ -60,7 +61,6 @@ export class AppController {
           box,
         });
       }
-      
     } catch (e) {
       console.log(e);
       return res.status(500).json({

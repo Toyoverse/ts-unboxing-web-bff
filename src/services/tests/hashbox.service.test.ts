@@ -60,7 +60,7 @@ describe('HashboxService', () => {
 
       crypt.encrypt.mockReturnValue(expectHash);
 
-      const signature = await hashboxService.generateSignature(box);
+      const signature = await hashboxService.generateSignature(box, {});
 
       expect(typeof signature).toBe('string');
     });
