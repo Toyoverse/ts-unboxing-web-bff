@@ -73,14 +73,15 @@ export class BoxService {
 
       const playerQuery = this.createPlayerQuery();
       const player = await playerQuery.get(result.get('player').id);
-
       const toyoId = this.hashBoxService.decryptHash(result.get('toyoHash'));
+
       const toyo = await this.toyoService.findToyoById(toyoId);
 
       // await this.toyoJobProducer.saveToyo(result, toyo);
-      await this.saveToyoJob(result, toyo);
 
       const parts = await toyo[0].relation('parts').query().find();
+
+      await this.saveToyoJob(result, toyo, parts);
 
       await this.updatePlayerFields(toyo, parts, player);
 
@@ -100,9 +101,10 @@ export class BoxService {
   async saveToyoJob(
     result: Parse.Object<Parse.Attributes>,
     toyo: Parse.Object<Parse.Attributes>[],
+    parts: Parse.Object<Parse.Attributes>[],
   ) {
     let count = 0;
-    setTimeout(async () => {
+    await timer(10000);
     while (count < 5) {
       const swappedEntities =
         await this.onChainService.getTokenSwappedEntitiesByClosedBoxTokenId(
@@ -119,11 +121,10 @@ export class BoxService {
         toyo[0].set('transactionHash', blockchainToyo.transactionHash);
         await toyo[0].save();
 
-        await this.updateBoxFields(result, toyo, blockchainBox);
+        await this.updateBoxFields(result, toyo, parts, blockchainBox);
         count = 5;
       }
     }
-    }, 10000);
   }
 
   private BoxMapper(
@@ -158,10 +159,11 @@ export class BoxService {
   async updateBoxFields(
     boxQuery: Parse.Object<Parse.Attributes>,
     toyo: Parse.Object<Parse.Attributes>[],
+    toyoParts: Parse.Object<Parse.Attributes>[],
     blockchainBox?: SwappedEntities,
   ) {
     const typeIdOpenBox: string = this.generateTypeIdOpenBox(
-      boxQuery.get('typeId'),
+      blockchainBox.fromTypeId,
     );
 
     boxQuery.set('toyo', toyo[0]);
@@ -173,6 +175,10 @@ export class BoxService {
       boxQuery.set('tokenId', blockchainBox.toTokenId);
       boxQuery.set('transactionHash', blockchainBox.transactionHash);
     }
+
+    const partsRelation = boxQuery.relation('parts');
+    partsRelation.add(toyoParts);
+
     await boxQuery.save();
   }
 
@@ -226,3 +232,5 @@ export class BoxService {
     );
   }
 }
+
+const timer = (ms) => new Promise((res) => setTimeout(res, ms));
