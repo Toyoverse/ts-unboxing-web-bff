@@ -17,6 +17,7 @@ lerna-debug.log*
 # Tests
 /coverage
 /.nyc_output
+test-report.xml
 
 # IDEs and editors
 /.idea
@@ -33,3 +34,11 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# AWS Settings
+/.aws
+.env.production
+/.serverless
+/_optimize
+/.build
+/.warmup

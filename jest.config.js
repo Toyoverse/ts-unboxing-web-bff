@@ -5,6 +5,9 @@ module.exports = {
   },
   moduleFileExtensions: ['js', 'ts'],
   modulePathIgnorePatterns: ['<rootDir>/src/interfaces/'],
+  moduleNameMapper: {
+    '^src/(.*)$': '<rootDir>/src/$1',
+  },
   coverageReporters: ['lcov', 'text', 'cobertura'],
   reporters: [
     'default',
@@ -21,6 +24,7 @@ module.exports = {
   testMatch: [
     '<rootDir>/tests/**/**/*.test.ts',
     '<rootDir>/tests/**/**/**/*.test.ts',
+    '<rootDir>/src/**/**/**/*.test.ts',
   ],
   testEnvironment: 'node',
 };
